@@ -1,0 +1,60 @@
+<configSections>
+    <!-- activity tracking log section group -->
+    <sectionGroup name="activityTrackingLog">
+      <section name="log" requirePermission="false" 
+                 type="ActivityTrackingLog.Configuration.ConfigSections.LogConfigSection, ActivityTrackingLog" />
+      <section name="storage" requirePermission="false" 
+                 type="ActivityTrackingLog.Configuration.ConfigSections.StorageConfigSection, ActivityTrackingLog" />
+      <section name="clientSideAccess" requirePermission="false" 
+                 type="ActivityTrackingLog.Configuration.ConfigSections.ClientAccessConfigSection, ActivityTrackingLog" />
+      <section name="ui" requirePermission="false" 
+                 type="ActivityTrackingLog.Configuration.ConfigSections.UiConfigSection, ActivityTrackingLog" />
+      <section name="api" requirePermission="false" 
+                 type="ActivityTrackingLog.Configuration.ConfigSections.ApiConfigSection, ActivityTrackingLog" />
+    </sectionGroup>
+  </configSections>
+  <!-- activity tracking log settings -->
+  <activityTrackingLog>
+    <log enabled="true" applicationKey="YourApplicationName" logSystemEvents="true" logSessionEvents="true" 
+                            logRequestEvents="true" logAuthEvents="true" logUserAgent="true" />
+    <storage enabled="true" type="ActivityTrackingLog.Storage.Implementations.InMemoryRepository, ActivityTrackingLog" 
+                            oldestDate="10/10/2011 00:00:00" recordsLimit="10000" connectionString="connection to your database" />
+    <clientSideAccess enabled="true" handlerUrl="/ActivityAnalytics/ClientActivitiesHandler.axd"/>
+    <ui enabled="true" localOnly="false" />
+    <api enabled="true" localOnly="false" />
+  </activityTrackingLog>
+  <!-- Handlers configuration -->
+  <location path="ActivityAnalytics">
+    <system.web>
+      <authorization>
+        <allow users="*"/>
+      </authorization>
+      <!-- this section is used for developmnet server, IIS < 7.0 or IIS >= 7.0 in classic mode -->
+      <httpHandlers>
+        <add verb="POST,GET,HEAD" path="ActivityAnalyticsUI.axd" type="ActivityTrackingLog.Web.Handlers.AnalyticsUI, ActivityTrackingLog" />
+        <add verb="POST,GET,HEAD" path="ActivityAnalyticsApi.axd" type="ActivityTrackingLog.Web.Handlers.AnalyticsApi, ActivityTrackingLog" />
+        <add verb="GET" path="ClientSideLogClient.axd" type="ActivityTrackingLog.Web.Handlers.ClientSideLogClient, ActivityTrackingLog" />
+        <add verb="POST" path="ClientActivitiesHandler.axd" type="ActivityTrackingLog.Web.Handlers.ClientActivitiesHandler, ActivityTrackingLog" />
+      </httpHandlers>
+    </system.web>
+    <system.webServer>
+      <!-- this section is used for IIS >= 7.0 in integrated mode -->
+      <handlers>
+        <add name="ActivityAnalyticsUI" verb="POST,GET,HEAD" path="ActivityAnalyticsUI.axd"
+             type="ActivityTrackingLog.Web.Handlers.AnalyticsUI, ActivityTrackingLog" preCondition="integratedMode" />
+        <add name="ActivityAnalyticsApi" verb="POST,GET,HEAD" path="ActivityAnalyticsApi.axd"
+             type="ActivityTrackingLog.Web.Handlers.AnalyticsApi, ActivityTrackingLog" preCondition="integratedMode" />
+        <add name="ClientSideLogClient" verb="GET" path="ClientSideLogClient.axd"
+             type="ActivityTrackingLog.Web.Handlers.ClientSideLogClient, ActivityTrackingLog" preCondition="integratedMode" />
+        <add name="ClientActivitiesHandler" verb="POST" path="ClientActivitiesHandler.axd"
+             type="ActivityTrackingLog.Web.Handlers.ClientActivitiesHandler, ActivityTrackingLog" preCondition="integratedMode" />
+      </handlers>
+    </system.webServer>
+  </location>
+  <!-- Modules Configuration -->
+<system.webServer>
+    <validation validateIntegratedModeConfiguration="false" />
+    <modules runAllManagedModulesForAllRequests="true">
+      <add name="SystemEventsLogging" type="ActivityTrackingLog.Web.SystemEventsLoggingModule, ActivityTrackingLog" />
+    </modules>
+  </system.webServer>
